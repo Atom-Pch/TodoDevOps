@@ -1,0 +1,15 @@
+# Stage 1: Build
+FROM golang:1.26-alpine AS builder
+WORKDIR /app
+COPY go.mod ./
+# COPY go.sum ./ (Uncomment if you add external dependencies later)
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+# Stage 2: Run
+FROM alpine:3.22
+WORKDIR /root/
+COPY --from=builder /app/main .
+EXPOSE 8080
+CMD ["./main"]
