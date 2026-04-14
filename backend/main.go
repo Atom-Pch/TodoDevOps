@@ -10,11 +10,15 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+func setJSONHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+}
+
 func main() {
 	http.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
+		setJSONHeaders(w)
 
 		if r.Method == http.MethodOptions {
 			return
@@ -30,6 +34,19 @@ func main() {
 		w.Write(jsonResp)
 	})
 
-	fmt.Println("Server listening on port 8080")
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		setJSONHeaders(w)
+
+		resp := Response{Message: "Health Check OK"}
+		jsonResp, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(jsonResp)
+	})
+
+	fmt.Println("Server listening on port 8888")
+	http.ListenAndServe(":8888", nil)
 }
