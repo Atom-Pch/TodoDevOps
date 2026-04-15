@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +10,14 @@ import (
 
 	_ "github.com/lib/pq" // Import the PostgreSQL driver anonymously
 )
+
+// Todo represents our database model and JSON structure
+type Todo struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	IsCompleted bool   `json:"is_completed"`
+}
 
 func main() {
 	// 1. Database Connection Configuration
@@ -52,9 +61,56 @@ func main() {
 		w.Write([]byte("API is healthy and running!"))
 	})
 
-	// Placeholder routes for our To-Do features
-	mux.HandleFunc("GET /todo-list", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("This will return a list of To-Dos"))
+	// GET: Fetch all To-Dos
+	mux.HandleFunc("GET /todos", func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.Query("SELECT id, title, description, is_completed FROM todos")
+		if err != nil {
+			http.Error(w, "Failed to query database", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var todos []Todo
+		for rows.Next() {
+			var t Todo
+			// We use sql.NullString for description in case it's empty in the DB
+			var desc sql.NullString
+			if err := rows.Scan(&t.ID, &t.Title, &desc, &t.IsCompleted); err != nil {
+				http.Error(w, "Failed to parse data", http.StatusInternalServerError)
+				return
+			}
+			if desc.Valid {
+				t.Description = desc.String
+			}
+			todos = append(todos, t)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(todos)
+	})
+
+	// POST: Create a new To-Do
+	mux.HandleFunc("POST /todos", func(w http.ResponseWriter, r *http.Request) {
+		var t Todo
+		if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		// Insert into DB and return the new ID
+		err := db.QueryRow(
+			"INSERT INTO todos (title, description) VALUES ($1, $2) RETURNING id",
+			t.Title, t.Description,
+		).Scan(&t.ID)
+
+		if err != nil {
+			http.Error(w, "Failed to create To-Do", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(t)
 	})
 
 	// 3. Start the Server

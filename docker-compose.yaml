@@ -4,6 +4,12 @@ services:
       context: ./backend
     ports:
       - "8080:8080"
+    environment:
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: atom
+      DB_PASS: atom
+      DB_NAME: tododb
     depends_on:
       - database
 
@@ -14,19 +20,19 @@ services:
       - "3000:3000"
     depends_on:
       - backend
-  
+
   database:
     image: postgres:17-alpine
     container_name: postgres
     environment:
       POSTGRES_USER: atom
-      POSTGRES_PASSWORD: '1234'
+      POSTGRES_PASSWORD: atom
       POSTGRES_DB: tododb
     ports:
       - "5432:5432"
     volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   postgres_data:
