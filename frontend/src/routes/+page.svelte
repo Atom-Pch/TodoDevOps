@@ -6,7 +6,7 @@
 	onMount(async () => {
 		try {
 			// In docker-compose, we will map port 8080
-			const res = await fetch('http://localhost:8080/api/hello');
+			const res = await fetch('http://localhost:8080/');
 			const data = await res.json();
 			message = data.message;
 		} catch (error) {
