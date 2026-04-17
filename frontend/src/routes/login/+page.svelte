@@ -4,41 +4,44 @@
 
 	let username = $state('');
 	let password = $state('');
-	let error = $state('');
+	let errorMessage = $state('');
 
-	async function handleLogin() {
-		if (!username || !password) {
-			error = 'Please fill in all fields';
-			return;
-		}
+	async function handleLogin(event: Event) {
+        if (event) event.preventDefault();
+        errorMessage = '';
 
-		try {
-			const response = await fetch(`${API_URL}/api/login`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ username: username, password_hash: password })
-			});
+        try {
+            const res = await fetch(`${API_URL}/api/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // CRITICAL DEVOPS DETAIL: This tells the browser to accept the Set-Cookie header 
+                // from the Go backend and store the session token securely.
+                credentials: 'include',
+                body: JSON.stringify({ username, password })
+            });
 
-			if (response.ok) {
-				document.cookie = `logged_in=true; username=${username}; path=/`;
-				window.location.href = '/todos';
-			} else {
-				error = 'Invalid username or password';
-			}
-		} catch (err) {
-			error = 'An error occurred. Please try again.' + err;
-		}
-	}
+            if (res.ok) {
+                console.log("Login successful! Cookie saved.");
+                // TODO: Redirect the user to the To-Do dashboard
+                window.location.href = '/todos';
+            } else {
+                errorMessage = 'Invalid username or password.';
+            }
+        } catch (err) {
+            errorMessage = 'Network error. Is the Go server running?';
+            console.error(err);
+        }
+    }
 </script>
 
 <div class="login-container">
 	<div class="login-card">
 		<h1>Login</h1>
 
-		{#if error}
-			<div class="error-message">{error}</div>
+		{#if errorMessage}
+			<div class="error-message">{errorMessage}</div>
 		{/if}
 
 		<form onsubmit={handleLogin}>
@@ -78,7 +81,7 @@
 	}
 
 	.login-card {
-		background: white;
+		background: #363636;
 		padding: 2rem;
 		border-radius: 8px;
 		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -88,7 +91,7 @@
 
 	h1 {
 		text-align: center;
-		color: #333;
+		color: #e0e0e0;
 		margin-bottom: 1.5rem;
 		font-size: 1.5rem;
 	}
@@ -109,7 +112,7 @@
 	label {
 		display: block;
 		margin-bottom: 0.5rem;
-		color: #555;
+		color: #e0e0e0;
 		font-weight: 500;
 	}
 
@@ -121,6 +124,7 @@
 		font-size: 1rem;
 		box-sizing: border-box;
 		transition: border-color 0.3s;
+		color: #363636;
 	}
 
 	input:focus {

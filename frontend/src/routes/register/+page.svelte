@@ -1,15 +1,17 @@
 <script lang="ts">
-    // Access the environment variable. It defaults to localhost if not set.
+	// Pull the API URL from your environment variables
 	const API_URL = import.meta.env.VITE_PUBLIC_API_URL || 'http://localhost:8080';
 
-	let email = $state('');
+	// State variables for your UI to bind to (adjust if you named yours differently)
 	let username = $state('');
+	let email = $state('');
 	let password = $state('');
-	let error = $state('');
+	let errorMessage = $state('');
 
+	// --- REGISTRATION LOGIC ---
 	async function handleRegister(event: Event) {
-		event.preventDefault();
-		error = '';
+		if (event) event.preventDefault();
+		errorMessage = '';
 
 		try {
 			const res = await fetch(`${API_URL}/api/register`, {
@@ -17,32 +19,32 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({
-					email,
-					username,
-					password_hash: password
-				})
+				// We don't strictly need credentials: 'include' for registration,
+				// but it's good practice to keep the payload consistent.
+				body: JSON.stringify({ username, email, password })
 			});
 
 			if (res.ok) {
-				// Redirect or handle successful registration
-                window.location.href = '/login';
+				console.log('Registration successful! You can now log in.');
+				// Optional: Automatically trigger handleLogin here, or redirect to a login view
+				window.location.href = '/login'; // Redirect to login page after successful registration
 			} else {
-				error = 'Failed to register user.';
+				const data = await res.text();
+				errorMessage = `Registration failed: ${data}`;
 			}
 		} catch (err) {
-			error = 'Could not connect to the API to register.';
+			errorMessage = 'Network error. Is the Go server running?';
 			console.error(err);
 		}
 	}
 </script>
 
-<div class="login-container">
-	<div class="login-card">
+<div class="reg-container">
+	<div class="reg-card">
 		<h1>Register</h1>
 
-		{#if error}
-			<div class="error-message">{error}</div>
+		{#if errorMessage}
+			<div class="error-message">{errorMessage}</div>
 		{/if}
 
 		<form onsubmit={handleRegister}>
@@ -73,21 +75,21 @@
 				/>
 			</div>
 
-			<button type="submit" class="login-btn">Register</button>
+			<button type="submit" class="reg-btn">Register</button>
 		</form>
 	</div>
 </div>
 
 <style>
-	.login-container {
+	.reg-container {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		min-height: 60vh;
 	}
 
-	.login-card {
-		background: white;
+	.reg-card {
+		background: #363636;
 		padding: 2rem;
 		border-radius: 8px;
 		box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -97,7 +99,7 @@
 
 	h1 {
 		text-align: center;
-		color: #333;
+		color: #e0e0e0;
 		margin-bottom: 1.5rem;
 		font-size: 1.5rem;
 	}
@@ -118,7 +120,7 @@
 	label {
 		display: block;
 		margin-bottom: 0.5rem;
-		color: #555;
+		color: #e0e0e0;
 		font-weight: 500;
 	}
 
@@ -130,6 +132,7 @@
 		font-size: 1rem;
 		box-sizing: border-box;
 		transition: border-color 0.3s;
+		color: #363636;
 	}
 
 	input:focus {
@@ -138,7 +141,7 @@
 		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 	}
 
-	.login-btn {
+	.reg-btn {
 		width: 100%;
 		padding: 0.75rem;
 		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -153,12 +156,12 @@
 			box-shadow 0.2s;
 	}
 
-	.login-btn:hover {
+	.reg-btn:hover {
 		transform: translateY(-2px);
 		box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 	}
 
-	.login-btn:active {
+	.reg-btn:active {
 		transform: translateY(0);
 	}
 </style>

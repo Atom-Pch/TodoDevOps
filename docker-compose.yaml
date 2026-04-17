@@ -10,6 +10,7 @@ services:
       DB_USER: atom
       DB_PASS: atom
       DB_NAME: tododb
+      JWT_SECRET: PRACTICE_8ORUhIEIMKOPyH2DpEBim7xfgHepQ3NZ7YiTWfav5Vd
     depends_on:
       - database
 

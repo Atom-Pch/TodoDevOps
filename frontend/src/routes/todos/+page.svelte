@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	// Access the environment variable. It defaults to localhost if not set.
@@ -16,7 +17,15 @@
 
 	async function fetchTodos() {
 		try {
-			const res = await fetch(`${API_URL}/api/todos`);
+			const res = await fetch(`${API_URL}/api/todos`, {
+				credentials: 'include' // Important for session cookie
+			});
+			if (res.status === 401) {
+				// THE BOUNCER: If Go says unauthorized, kick the user to the login page!
+				console.log('Not logged in. Redirecting...');
+				goto('/login');
+				return; // Stop running this function
+			}
 			if (res.ok) {
 				// If the DB is empty, the API might return null, so we fallback to an empty array
 				todos = (await res.json()) || [];
@@ -36,6 +45,7 @@
 		try {
 			const res = await fetch(`${API_URL}/api/todos`, {
 				method: 'POST',
+				credentials: 'include', // Important for session cookie
 				headers: {
 					'Content-Type': 'application/json'
 				},
@@ -58,6 +68,24 @@
 			console.error(err);
 		}
 	}
+
+	async function deleteTodo(id: number) {
+		try {
+			const res = await fetch(`${API_URL}/api/todos/${id}`, {
+				method: 'DELETE',
+				credentials: 'include' // Must send the cookie!
+			});
+
+			if (res.ok) {
+				// Instantly remove the deleted item from the UI
+				todos = todos.filter((todo) => todo.id !== id);
+			} else {
+				console.error('Failed to delete task');
+			}
+		} catch (err) {
+			console.error('Could not connect to the API to delete the To-Do.', err);
+		}
+	}
 </script>
 
 <main>
@@ -68,17 +96,20 @@
 	<form onsubmit={addTodo}>
 		<input type="text" placeholder="To-Do Title" bind:value={newTitle} required />
 		<input type="text" placeholder="Description (Optional)" bind:value={newDescription} />
-		<button type="submit">Add Task</button>
+		<button type="submit">Add</button>
 	</form>
 
 	<ul>
-		{#each todos as todo}
+		{#each todos.toReversed() as todo}
 			<li>
 				<strong>{todo.title}</strong>
 				{#if todo.description}
 					<p>{todo.description}</p>
 				{/if}
 			</li>
+			<div class="del-block">
+				<button class="delete-btn" onclick={() => deleteTodo(todo.id)}>Delete </button>
+			</div>
 		{/each}
 		{#if todos.length === 0 && !error}
 			<p class="empty-state">No tasks yet. Create one above to test the database!</p>
@@ -87,17 +118,8 @@
 </main>
 
 <style>
-	/* Clean, minimal styling for the UI */
-	:global(body) {
-		font-family:
-			system-ui,
-			-apple-system,
-			sans-serif;
-		background-color: #f9fafb;
-		color: #111827;
-	}
 	main {
-		max-width: 600px;
+		max-width: 50vw;
 		margin: 3rem auto;
 		padding: 0 1rem;
 	}
@@ -119,26 +141,23 @@
 		padding: 0.75rem;
 		border: 1px solid #d1d5db;
 		border-radius: 6px;
+		color: #363636;
 	}
 	button {
 		padding: 0.75rem 1.5rem;
-		background-color: #2563eb;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		color: white;
 		border: none;
 		border-radius: 6px;
 		cursor: pointer;
 		font-weight: bold;
 	}
-	button:hover {
-		background-color: #1d4ed8;
-	}
 	ul {
 		list-style: none;
 		padding: 0;
 	}
 	li {
-		background: white;
-		margin-bottom: 1rem;
+		background: #575757;
 		padding: 1.5rem;
 		border-radius: 8px;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -150,11 +169,22 @@
 	}
 	li p {
 		margin: 0.5rem 0 0 0;
-		color: #4b5563;
+		color: #e0e0e0;
 	}
 	.empty-state {
 		text-align: center;
-		color: #6b7280;
+		color: #97a2b6;
 		font-style: italic;
+	}
+	.delete-btn {
+        background: #e0e0e0;
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        padding: 0.5rem 1rem;
+		margin-bottom: 1rem;
+    }
+	.del-block {
+		display: flex;
+		justify-content: flex-end;
 	}
 </style>

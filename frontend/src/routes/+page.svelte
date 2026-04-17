@@ -16,19 +16,20 @@
 		margin: 2rem auto;
 		padding: 1rem;
 		font-family: Arial, sans-serif;
+		background: #1a1a1a;
 	}
 
 	p {
 		font-size: 1.2rem;
 		line-height: 1.5;
-		color: #555;
+		color: #e0e0e0;
 	}
 
 	a {
 		display: inline-block;
 		margin-top: 1rem;
 		padding: 0.5rem 1rem;
-		background-color: #007bff;
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 		color: white;
 		text-decoration: none;
 		border-radius: 4px;
