@@ -47,7 +47,10 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Printf("Warning: Database ping failed: %v", err)
 	} else {
-		fmt.Println("Successfully connected to PostgreSQL!")
+		log.Println("Successfully connected to PostgreSQL!")
+		var v string
+		db.QueryRow("SELECT version()").Scan(&v)
+		log.Println(v)
 	}
 
 	// 2. Initialize AWS S3
@@ -90,6 +93,6 @@ func main() {
 		port = "8080"
 	}
 
-	fmt.Printf("Server starting on port %s...\n", port)
+	log.Printf("Server starting on port %s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, corsMiddleware(mux)))
 }
