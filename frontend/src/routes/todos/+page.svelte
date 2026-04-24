@@ -24,8 +24,8 @@
 			});
 			if (res.status === 401) {
 				// THE BOUNCER: If Go says unauthorized, kick the user to the login page!
-				console.log('Not logged in. Redirecting...');
 				goto('/login');
+				console.log('Not logged in. Redirecting...');
 				return; // Stop running this function
 			}
 			if (res.ok) {
