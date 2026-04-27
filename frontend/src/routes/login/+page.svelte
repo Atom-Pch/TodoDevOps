@@ -30,7 +30,7 @@
                 errorMessage = 'Invalid username or password.';
             }
         } catch (err) {
-            errorMessage = 'Network error. Is the Go server running?';
+            errorMessage = 'Network error. You\'re offline or server not running.';
             console.error(err);
         }
     }

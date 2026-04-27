@@ -8,18 +8,16 @@
 	const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 	let currentUser: string | null = $state(null);
+	// NEW: Add the loading state, default to true so it blocks the UI immediately
 	let isCheckingAuth = $state(true);
-	let error = $state('')
 
 	async function handleLogout() {
 		try {
 			await fetch(`${API_URL}/api/logout`, {
 				method: 'POST',
-				// CRITICAL: Tells the browser to send the cookie so Go can invalidate it
 				credentials: 'include'
 			});
 			console.log('Logged out successfully.');
-			// TODO: Clear local UI state and redirect to login page
 			window.location.href = '/';
 		} catch (err) {
 			console.error('Failed to log out', err);
@@ -29,8 +27,6 @@
 	onMount(async () => {
 		// As soon as the app loads, check if we are logged in
 		await checkSession();
-
-		isCheckingAuth = false;
 	});
 
 	// --- CHECK WHO IS LOGGED IN ---
@@ -39,24 +35,20 @@
 			const res = await fetch(`${API_URL}/api/me`, { credentials: 'include' });
 			if (res.ok) {
 				const data = await res.json();
-				currentUser = data.username; // We found the user!
+				currentUser = data.username;
 			} else {
-				currentUser = null; // No valid session
-				// NEW LOGIC: If the user doesn't exist anymore, destroy the zombie cookie
+				currentUser = null; 
                 if (res.status === 404 || res.status === 401) {
                     await fetch(`${API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
                 }
 			}
 		} catch (err) {
-            // FIX THE OFFLINE BYPASS: If network is dead, assume logged out!
             console.error("Auth check failed (offline or backend down?):", err);
-            currentUser = null; 
-            error = "Cannot connect to server.";
-            // Optional: goto('/login'); if using separate routes
+            currentUser = null;
         } finally {
-            // NEW: Whether it succeeded, failed, or the network died, we are done checking.
-            isCheckingAuth = false; 
-        }
+			// NEW: Unblock the UI whether the check succeeded or failed
+			isCheckingAuth = false;
+		}
 	}
 </script>
 
@@ -64,7 +56,7 @@
 
 <style>
 	:global(body) {
-		background-color: #111827; /* Tailwind bg-gray-900 */
+		background-color: #111827; 
 		margin: 0;
 	}
 </style>
@@ -77,10 +69,7 @@
 					DevOps App
 				</a>
 			</div>
-			{#if error}
-        		<div>{error}</div>
-   			 {/if}
-			
+
 			<div class="flex items-center space-x-4 sm:space-x-6">
 				{#if currentUser}
 					<form onsubmit={handleLogout} class="m-0">
@@ -99,6 +88,16 @@
 	</nav>
 
 	<div class="flex-grow w-full">
-		{@render children()}
+		{#if isCheckingAuth}
+			<div class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+				<svg class="animate-spin h-10 w-10 text-indigo-500" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+				</svg>
+				<p class="text-gray-400 font-medium">Connecting...</p>
+			</div>
+		{:else}
+			{@render children()}
+		{/if}
 	</div>
 </div>
