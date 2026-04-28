@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Pull the API URL from your environment variables
-	const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+	const API_URL = import.meta.env.VITE_API_URL;
 
 	// State variables for your UI to bind to (adjust if you named yours differently)
 	let username = $state('');

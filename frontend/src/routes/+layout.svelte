@@ -5,7 +5,7 @@
 
 	let { children } = $props();
 
-	const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+	const API_URL = import.meta.env.VITE_API_URL;
 
 	let currentUser: string | null = $state(null);
 	// NEW: Add the loading state, default to true so it blocks the UI immediately

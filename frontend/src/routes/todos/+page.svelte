@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 
 	// Access the environment variable. It defaults to localhost if not set.
-	const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+	const API_URL = import.meta.env.VITE_API_URL;
 
 	let todos = $state<any[]>([]);
 	let newTitle = $state('');
