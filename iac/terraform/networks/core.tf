@@ -1,9 +1,9 @@
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 6.0"
+  version = ">= 6.6.1"
 
   name = "todo-vpc"
-  cidr = var.vpc_cidr
+  cidr = "10.0.0.0/20"
 
   azs = ["us-east-2a", "us-east-2b"]
 
@@ -23,11 +23,12 @@ module "vpc" {
     name = "todo-rtb-public"
   }
   private_route_table_tags = {
-    # The module automatically appends the AZ to private route tables
     name = "todo-rtb-private"
   }
 
-  enable_flow_log = true
+  enable_flow_log                      = true
+  create_flow_log_cloudwatch_log_group = true
+  create_flow_log_cloudwatch_iam_role  = true
 }
 
 resource "aws_vpc_endpoint" "s3" {

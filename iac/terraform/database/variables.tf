@@ -1,10 +1,10 @@
-variable "db_password" {
-  description = "Password for RDS"
-  type        = string
-  sensitive   = true
-}
-
 variable "backend_sg" {
-  description = "Backend security group"
-  type = string
+  description = "Security group from backend ECS service"
 }
+variable "vpc" {
+  description = "todo VPC"
+}
+variable "private_subnets" {
+  description = "private subnets for RDS"
+}
+variable "my_ip" {}

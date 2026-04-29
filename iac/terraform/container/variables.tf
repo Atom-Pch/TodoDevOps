@@ -1,9 +1,9 @@
 variable "tag_policy" {
-  description = "Tag mutability policy"
-  type        = string
+  description = "ECR tags policy"
 }
-
 variable "alb_sg" {
-  description = "ALB security group"
-  type = string
+  description = "ALB security group for containers"
+}
+variable "vpc" {
+  description = "todo vpc"
 }

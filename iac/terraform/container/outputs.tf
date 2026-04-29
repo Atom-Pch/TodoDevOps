@@ -1,3 +1,3 @@
 output "backend_sg" {
-  value = aws_security_group.backend_sg
+  value = module.backend_sg.security_group_id
 }
