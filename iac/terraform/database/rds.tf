@@ -26,6 +26,7 @@ module "rds" {
 
   db_subnet_group_name = aws_db_subnet_group.this.name
 
+  skip_final_snapshot = true
   manage_master_user_password = true
   manage_master_user_password_rotation = true
   master_user_password_rotate_immediately = false

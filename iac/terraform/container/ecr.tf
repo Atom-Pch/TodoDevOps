@@ -41,6 +41,8 @@ module "frontend-repo" {
       }
     ]
   })
+
+  repository_force_delete = true
 }
 
 module "backend-repo" {
@@ -75,4 +77,6 @@ module "backend-repo" {
       }
     ]
   })
+
+  repository_force_delete = true
 }
