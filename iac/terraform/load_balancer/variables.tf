@@ -1,5 +1,5 @@
 variable "vpc" {
-    description = "todo VPC"
+  description = "todo VPC"
 }
 
 variable "public_subnets" {

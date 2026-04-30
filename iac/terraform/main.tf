@@ -10,43 +10,44 @@ terraform {
 }
 
 provider "aws" {
+  alias = "dummy"
+}
+
+resource "aws_servicecatalogappregistry_application" "todo_app" {
+  provider    = aws.dummy
+  name        = "todo-app-for-devops"
+  description = "Todo web application managed by Terraform"
+}
+
+provider "aws" {
   region  = var.aws_region
   profile = var.aws_profile
 
   default_tags {
-    tags = {
-      Environment = "Practice"
-      ManagedBy   = "Terraform"
-      Project     = "TodoApp"
-      # awsApplication = aws_servicecatalogappregistry_application.todo_app.application_tag
-    }
+    tags = aws_servicecatalogappregistry_application.todo_app.application_tag
   }
-}
-
-resource "aws_servicecatalogappregistry_application" "todo_app" {
-  name = "todo-app-for-devops"
-  description = "Todo web application managed via Terraform"
 }
 
 module "networks" {
   source = "./networks"
 
   aws_region = var.aws_region
+  vpc_cidr = "10.0.0.0/20"
 }
 
 module "database" {
   source = "./database"
 
-  backend_sg  = module.container.backend_sg
-  vpc         = module.networks.vpc
-  my_ip       = var.my_ip
+  backend_sg      = module.container.backend_sg
+  vpc             = module.networks.vpc
+  my_ip           = var.my_ip
   private_subnets = module.networks.private_subnets
 }
 
 module "load_balancer" {
   source = "./load_balancer"
 
-  vpc = module.networks.vpc
+  vpc            = module.networks.vpc
   public_subnets = module.networks.pubic_subnets
 }
 
@@ -56,6 +57,7 @@ module "container" {
   tag_policy = "IMMUTABLE_WITH_EXCLUSION"
   alb_sg     = module.load_balancer.alb_sg
   vpc        = module.networks.vpc
+  private_subnets = module.networks.private_subnets
 }
 
 module "storage" {

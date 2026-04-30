@@ -1,26 +1,5 @@
-resource "aws_ecr_repository" "repo_frontend" {
-  name                 = "todo-frontend"
-  image_tag_mutability = var.tag_policy
-
-  image_tag_mutability_exclusion_filter {
-    filter      = "latest"
-    filter_type = "WILDCARD"
-  }
-}
-
-resource "aws_ecr_repository" "repo_backend" {
-  name                 = "todo-backend"
-  image_tag_mutability = var.tag_policy
-
-  image_tag_mutability_exclusion_filter {
-    filter      = "latest"
-    filter_type = "WILDCARD"
-  }
-}
-
-resource "aws_ecr_registry_scanning_configuration" "image_scanning" {
+resource "aws_ecr_registry_scanning_configuration" "scan" {
   scan_type = "BASIC"
-
   rule {
     scan_frequency = "SCAN_ON_PUSH"
     repository_filter {
@@ -30,46 +9,70 @@ resource "aws_ecr_registry_scanning_configuration" "image_scanning" {
   }
 }
 
-# resource "aws_ecr_lifecycle_policy" "expire_old_img_frontend" {
-#   repository = aws_ecr_repository.repo_frontend.name
+module "frontend-repo" {
+  source  = "terraform-aws-modules/ecr/aws"
+  version = ">= 3.2.0"
 
-#   policy = jsonencode({
-#     "rules" : [
-#       {
-#         "rulePriority" : 1,
-#         "description" : "Keep last 10 images",
-#         "selection" : {
-#           "tagStatus" : "tagged",
-#           "tagPrefixList" : "v",
-#           "countType" : "imageCountMoreThan",
-#           "countNumber" : 10
-#         },
-#         "action" : {
-#           "type" : "expire"
-#         }
-#       }
-#     ]
-#   })
-# }
+  repository_name = "todo-frontend-repo"
+  repository_type = "private"
 
-# resource "aws_ecr_lifecycle_policy" "expire_old_img_backend" {
-#   repository = aws_ecr_repository.repo_backend.name
+  repository_image_tag_mutability = var.tag_policy
+  repository_image_tag_mutability_exclusion_filter = [
+    {
+      filter      = "latest"
+      filter_type = "WILDCARD"
+    }
+  ]
 
-#   policy = jsonencode({
-#     "rules" : [
-#       {
-#         "rulePriority" : 1,
-#         "description" : "Keep last 10 images",
-#         "selection" : {
-#           "tagStatus" : "tagged",
-#           "tagPrefixList" : "v",
-#           "countType" : "imageCountMoreThan",
-#           "countNumber" : 10
-#         },
-#         "action" : {
-#           "type" : "expire"
-#         }
-#       }
-#     ]
-#   })
-# }
+  repository_lifecycle_policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1,
+        description  = "Keep last 10 images",
+        selection = {
+          tagStatus     = "tagged",
+          tagPrefixList = ["v"],
+          countType     = "imageCountMoreThan",
+          countNumber   = 10
+        },
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}
+
+module "backend-repo" {
+  source  = "terraform-aws-modules/ecr/aws"
+  version = ">= 3.2.0"
+
+  repository_name = "todo-backend-repo"
+  repository_type = "private"
+
+  repository_image_tag_mutability = var.tag_policy
+  repository_image_tag_mutability_exclusion_filter = [
+    {
+      filter      = "latest"
+      filter_type = "WILDCARD"
+    }
+  ]
+
+  repository_lifecycle_policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1,
+        description  = "Keep last 10 images",
+        selection = {
+          tagStatus     = "tagged",
+          tagPrefixList = ["v"],
+          countType     = "imageCountMoreThan",
+          countNumber   = 10
+        },
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
+}

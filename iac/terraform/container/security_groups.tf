@@ -2,7 +2,7 @@ module "frontend_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = ">= 5.3.1"
 
-  name        = "todo-frontend-sg"
+  name        = "todo-frontend-service-sg"
   description = "Allow todo frontend service to receive connections from ALB"
   vpc_id      = var.vpc
 
@@ -24,7 +24,7 @@ module "backend_sg" {
   source  = "terraform-aws-modules/security-group/aws"
   version = ">= 5.3.1"
 
-  name        = "todo-backend-sg"
+  name        = "todo-backend-service-sg"
   description = "Allow todo backend service to receive connections from ALB"
   vpc_id      = var.vpc
 

@@ -3,7 +3,7 @@ module "vpc" {
   version = ">= 6.6.1"
 
   name = "todo-vpc"
-  cidr = "10.0.0.0/20"
+  cidr = var.vpc_cidr
 
   azs = ["us-east-2a", "us-east-2b"]
 
@@ -29,16 +29,4 @@ module "vpc" {
   enable_flow_log                      = true
   create_flow_log_cloudwatch_log_group = true
   create_flow_log_cloudwatch_iam_role  = true
-}
-
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = module.vpc.vpc_id
-  service_name      = "com.amazonaws.${var.aws_region}.s3"
-  vpc_endpoint_type = "Gateway"
-
-  route_table_ids = module.vpc.private_route_table_ids
-
-  tags = {
-    Name = "todo-vpce-s3"
-  }
 }

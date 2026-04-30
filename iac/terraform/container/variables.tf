@@ -7,3 +7,6 @@ variable "alb_sg" {
 variable "vpc" {
   description = "todo vpc"
 }
+variable "private_subnets" {
+  description = "private subnets for RDS"
+}
