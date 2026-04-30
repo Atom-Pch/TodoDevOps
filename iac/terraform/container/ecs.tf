@@ -12,20 +12,28 @@ module "ecs" {
       desired_count = 1
 
       container_definitions = {
-        backend-container = {
+        frontend-container = {
           image     = "131912109503.dkr.ecr.us-east-2.amazonaws.com/todo-frontend-repo:latest"
           essential = true
+
+          portMappings = [
+            {
+              name          = "todo-frontend-task"
+              containerPort = 3000
+              hostPort      = 3000
+              protocol      = "tcp"
+            }
+          ]
         }
       }
 
-      portMappings = [
-        {
-          name          = "todo-frontend-task"
-          containerPort = 3000
-          hostPort      = 3000
-          protocol      = "tcp"
+      load_balancer = {
+        service = {
+          target_group_arn = var.alb_tg["tg-frontend"].arn
+          container_name   = "frontend-container"
+          container_port   = 3000
         }
-      ]
+      }
 
       security_group_ids = [module.frontend_sg.security_group_id]
       subnet_ids         = var.private_subnets
@@ -41,17 +49,25 @@ module "ecs" {
         backend-container = {
           image     = "131912109503.dkr.ecr.us-east-2.amazonaws.com/todo-backend-repo:latest"
           essential = true
+
+          portMappings = [
+            {
+              name          = "todo-backend-task"
+              containerPort = 8080
+              hostPort      = 8080
+              protocol      = "tcp"
+            }
+          ]
         }
       }
 
-      portMappings = [
-        {
-          name          = "todo-backend-task"
-          containerPort = 8080
-          hostPort      = 8080
-          protocol      = "tcp"
+      load_balancer = {
+        service = {
+          target_group_arn = var.alb_tg["tg-backend"].arn
+          container_name   = "backend-container"
+          container_port   = 8080
         }
-      ]
+      }
 
       security_group_ids = [module.backend_sg.security_group_id]
       subnet_ids         = var.private_subnets

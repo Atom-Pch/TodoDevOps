@@ -58,6 +58,12 @@ module "container" {
   alb_sg     = module.load_balancer.alb_sg
   vpc        = module.networks.vpc
   private_subnets = module.networks.private_subnets
+  alb_tg = module.load_balancer.alb_tg
+  ecs_role = module.iam.ecs_role
+}
+
+module "iam" {
+  source = "./iam"
 }
 
 module "storage" {

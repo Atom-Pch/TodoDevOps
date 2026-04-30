@@ -10,3 +10,9 @@ variable "vpc" {
 variable "private_subnets" {
   description = "private subnets for RDS"
 }
+variable "alb_tg" {
+  description = "ALB target group arn"
+}
+variable "ecs_role" {
+  description = "IAM role for S3 access env files"
+}
