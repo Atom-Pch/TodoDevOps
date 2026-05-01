@@ -13,6 +13,9 @@ variable "private_subnets" {
 variable "alb_tg" {
   description = "ALB target group arn"
 }
-variable "ecs_role" {
-  description = "IAM role for S3 access env files"
+variable "todo_env_policy" {
+  description = "IAM policy for S3 access env"
+}
+variable "todo_files_policy" {
+  description = "IAM policy for S3 access files"
 }

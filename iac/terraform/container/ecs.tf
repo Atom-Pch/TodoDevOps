@@ -24,6 +24,13 @@ module "ecs" {
               protocol      = "tcp"
             }
           ]
+
+          environmentFiles = [
+            {
+              value = "arn:aws:s3:::todo-env-131912109503-us-east-2-an/frontned/.env"
+              type  = "s3"
+            }
+          ]
         }
       }
 
@@ -38,6 +45,11 @@ module "ecs" {
       security_group_ids = [module.frontend_sg.security_group_id]
       subnet_ids         = var.private_subnets
       assign_public_ip   = false
+
+      task_exec_iam_role_policies = {
+        env_policy   = var.todo_env_policy
+        files_policy = var.todo_files_policy
+      }
     }
 
     todo-backend-task = {
@@ -58,6 +70,13 @@ module "ecs" {
               protocol      = "tcp"
             }
           ]
+
+          environmentFiles = [
+            {
+              value = "arn:aws:s3:::todo-env-131912109503-us-east-2-an/backend/.env"
+              type  = "s3"
+            }
+          ]
         }
       }
 
@@ -72,6 +91,11 @@ module "ecs" {
       security_group_ids = [module.backend_sg.security_group_id]
       subnet_ids         = var.private_subnets
       assign_public_ip   = false
+
+      task_exec_iam_role_policies = {
+        env_policy   = var.todo_env_policy
+        files_policy = var.todo_files_policy
+      }
     }
   }
 

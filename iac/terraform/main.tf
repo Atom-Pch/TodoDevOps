@@ -59,7 +59,8 @@ module "container" {
   vpc        = module.networks.vpc
   private_subnets = module.networks.private_subnets
   alb_tg = module.load_balancer.alb_tg
-  ecs_role = module.iam.ecs_role
+  todo_env_policy = module.iam.todo_env_policy
+  todo_files_policy = module.iam.todo_files_policy
 }
 
 module "iam" {

@@ -20,6 +20,8 @@ module "todo-bucket" {
       max_age_seconds = 3600
     }
   ]
+
+  force_destroy = true
 }
 
 module "env-bucket" {
@@ -33,4 +35,18 @@ module "env-bucket" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+
+  force_destroy = true
+}
+
+resource "aws_s3_object" "backend_env" {
+  bucket = module.env-bucket.s3_bucket_id
+  key    = "backend/.env"
+  source = "../../backend/.env"
+}
+
+resource "aws_s3_object" "frontend_env" {
+  bucket = module.env-bucket.s3_bucket_id
+  key    = "frontend/.env"
+  source = "../../frontend/.env"
 }
