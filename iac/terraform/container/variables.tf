@@ -22,3 +22,12 @@ variable "todo_files_policy" {
 variable "alb_dns" {
   description = "DNS name from ALB"
 }
+variable "s3_files_name" {
+  description = "name of todo files S3 bucket"
+}
+variable "s3_env_arn" {
+  description = "ARN of todo env S3 bucket"
+}
+variable "db_address" {
+  description = "address of todo RDS"
+}

@@ -63,3 +63,17 @@ resource "aws_vpc_endpoint" "logs" {
     Name = "todo-vpce-cloudwatch-logs"
   }
 }
+
+resource "aws_vpc_endpoint" "secret" {
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.${var.aws_region}.secretsmanager"
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = module.vpc.private_subnets
+  security_group_ids = [module.ecr_sg.security_group_id]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "todo-vpce-secret-manager"
+  }
+}

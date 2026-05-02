@@ -9,7 +9,7 @@ module "ecs" {
     todo-frontend-task = {
       cpu           = 512
       memory        = 1024
-      desired_count = 1
+      desired_count = 2
 
       container_definitions = {
         frontend-container = {
@@ -55,7 +55,7 @@ module "ecs" {
     todo-backend-task = {
       cpu           = 512
       memory        = 1024
-      desired_count = 1
+      desired_count = 2
 
       container_definitions = {
         backend-container = {
@@ -71,9 +71,39 @@ module "ecs" {
             }
           ]
 
+          environment = [
+            {
+              name = "DB_HOST"
+              value  = var.db_address
+            },
+            {
+              name = "DB_USER"
+              value  = "atom"
+            },
+            {
+              name = "DB_NAME"
+              value  = "todo_db"
+            },
+            {
+              name ="S3_BUCKET_NAME"
+              value = var.s3_files_name
+            },
+            {
+              name = "AWS_REGION"
+              value = "us-east-2"
+            }
+          ]
+
+          secrets = [
+            {
+              name = "DB_PASS"
+              valueFrom = "arn:aws:secretsmanager:us-east-2:131912109503:secret:rds!db-f7c461f3-645c-40ac-891a-590b5c39d73a-QUSUCP"
+            }
+          ]
+
           environmentFiles = [
             {
-              value = "arn:aws:s3:::todo-env-131912109503-us-east-2-an/backend/.env"
+              value = "${var.s3_env_arn}/.env"
               type  = "s3"
             }
           ]

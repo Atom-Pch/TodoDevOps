@@ -1,6 +1,6 @@
 data "aws_caller_identity" "current" {}
 
-module "todo-bucket" {
+module "todo_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = ">= 5.12.0"
 
@@ -24,7 +24,7 @@ module "todo-bucket" {
   force_destroy = true
 }
 
-module "env-bucket" {
+module "env_bucket" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = ">= 5.12.0"
 
@@ -40,7 +40,7 @@ module "env-bucket" {
 }
 
 resource "aws_s3_object" "backend_env" {
-  bucket = module.env-bucket.s3_bucket_id
-  key    = "backend/.env"
-  source = "../../backend/.env"
+  bucket = module.env_bucket.s3_bucket_id
+  key    = ".env"
+  source = "../../backend/backend.env"
 }
