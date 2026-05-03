@@ -97,7 +97,7 @@ module "ecs" {
           secrets = [
             {
               name = "DB_PASS"
-              valueFrom = "arn:aws:secretsmanager:us-east-2:131912109503:secret:rds!db-f7c461f3-645c-40ac-891a-590b5c39d73a-QUSUCP"
+              valueFrom = "arn:aws:secretsmanager:us-east-2:131912109503:secret:rds!db-f7c461f3-645c-40ac-891a-590b5c39d73a-QUSUCP:password::"
             }
           ]
 
@@ -128,6 +128,8 @@ module "ecs" {
       }
     }
   }
+
+  task_exec_secret_arns = []
 
   create_security_group     = false
   create_task_exec_iam_role = true
