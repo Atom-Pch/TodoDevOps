@@ -7,8 +7,8 @@ module "ecs" {
 
   services = {
     todo-frontend-task = {
-      cpu           = 512
-      memory        = 1024
+      cpu           = 1024
+      memory        = 2048
       desired_count = 2
 
       container_definitions = {
@@ -53,8 +53,8 @@ module "ecs" {
     }
 
     todo-backend-task = {
-      cpu           = 512
-      memory        = 1024
+      cpu           = 1024
+      memory        = 2048
       desired_count = 2
 
       container_definitions = {
