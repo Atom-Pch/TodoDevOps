@@ -1,0 +1,29 @@
+---
+- name: Check AWS CLI version
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Verify Ansible is working
+      ansible.builtin.debug:
+        msg: "Ansible is successfully running on WSL."
+
+    - name: Check AWS CLI installation
+      ansible.builtin.command: aws --version
+      register: aws_version
+      ignore_errors: true
+      changed_when: false
+
+    - name: Display AWS CLI status
+      ansible.builtin.debug:
+        msg: >
+          {{ aws_version.stdout if aws_version.rc == 0 else 'AWS CLI not found.
+          Please install it to proceed' }}
+
+    - name: Get current AWS caller identity using Ansible module
+      amazon.aws.aws_caller_info:
+      register: aws_user_info
+
+    - name: Display AWS User details
+      ansible.builtin.debug:
+        msg:
+          - "User ARN: {{ aws_user_info.arn }}"
